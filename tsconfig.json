@@ -1,6 +1,12 @@
 {
   "extends": "expo/tsconfig.base",
   "compilerOptions": {
-    "strict": true
+    "strict": true,
+    "paths": {
+      "@colors": ["./app/utils/colors.ts"],
+      "@typography": ["./app/utils/typography.ts"],
+      "@components/*": ["./app/components/*"],
+      "@images/*": ["./app/assets/images/*"],
+    }
   }
 }
