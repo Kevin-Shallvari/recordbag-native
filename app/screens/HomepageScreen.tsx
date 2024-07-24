@@ -10,30 +10,22 @@ import {
 } from "react-native";
 import RecordBagLogo from "@images/record-bag-icon.svg";
 import { colors } from "@colors";
-import { collection, getDocs } from "firebase/firestore";
-import { firestoreDb } from "@config/firebase";
-import { pipe, identity, flow } from "fp-ts/function";
-import { Channels, channels } from "@models/channels";
-import * as E from "fp-ts/Either";
-import * as TE from "fp-ts/TaskEither";
-import {
-  failure,
-  fold3,
-  initial,
-  RemoteData,
-  success,
-} from "@devexperts/remote-data-ts";
+import { pipe } from "fp-ts/function";
+import { Channels } from "@models/channels";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { Loading } from "@components/Loading";
-import { fetchAllChannels } from "../fetch/channels";
+import { Fetch, fetchAllChannels } from "../fetch/channels";
+import { match } from "ts-pattern";
 
 export const HomepageScreen: FC<
   NativeStackScreenProps<RootStackParamList, "Home">
 > = ({ navigation }) => {
-  const [shops, setShops] =
-    React.useState<RemoteData<unknown, Channels>>(initial);
+  const [shops, setShops] = React.useState<Fetch<Channels>>({
+    status: "initial",
+  });
 
   useEffect(() => {
+    setShops({ status: "loading" });
     fetchAllChannels().then(setShops);
   }, []);
 
@@ -46,53 +38,50 @@ export const HomepageScreen: FC<
         </Text>
       </View>
 
-      {pipe(
-        shops,
-        fold3(
-          () => (
-            <View style={styles.loadingContainer}>
-              <Loading />
-            </View>
-          ),
-          () => <Text>Error</Text>,
-          (data) => (
-            <View style={styles.allChannelsContainer}>
-              <Text color="lightGray" fontWeight="bold" fontSize="h2">
-                DIG IN AND START YOUR COLLECTION
-              </Text>
-              <FlatList
-                columnWrapperStyle={{ gap: 8 }}
-                contentContainerStyle={{ gap: 8 }}
-                style={styles.channelFlatList}
-                data={data}
-                keyExtractor={(item) => item.id}
-                numColumns={2}
-                renderItem={({ item }) => (
-                  <TouchableHighlight
-                    onPress={() =>
-                      navigation.navigate("Channel", { channelId: item.id })
-                    }
-                    underlayColor={colors.orange}
-                    activeOpacity={0.5}
-                    style={styles.thumbnailTouch}
-                  >
-                    <View>
-                      <Image
-                        resizeMethod="resize"
-                        style={styles.thumbnail}
-                        source={{ uri: item.thumbnail }}
-                      />
-                      <Text style={styles.label} fontWeight="bold">
-                        {item.title}
-                      </Text>
-                    </View>
-                  </TouchableHighlight>
-                )}
-              />
-            </View>
-          )
-        )
-      )}
+      {match(shops)
+        .with({ status: "initial" }, { status: "loading" }, () => (
+          <View style={styles.loadingContainer}>
+            <Loading />
+          </View>
+        ))
+        .with({ status: "error" }, () => <Text>Error</Text>)
+        .with({ status: "success" }, ({ data }) => (
+          <View style={styles.allChannelsContainer}>
+            <Text color="lightGray" fontWeight="bold" fontSize="h2">
+              DIG IN AND START YOUR COLLECTION
+            </Text>
+            <FlatList
+              columnWrapperStyle={{ gap: 8 }}
+              contentContainerStyle={{ gap: 8 }}
+              style={styles.channelFlatList}
+              data={data}
+              keyExtractor={(item) => item.id}
+              numColumns={2}
+              renderItem={({ item }) => (
+                <TouchableHighlight
+                  onPress={() =>
+                    navigation.navigate("Channel", { channelId: item.id })
+                  }
+                  underlayColor={colors.orange}
+                  activeOpacity={0.5}
+                  style={styles.thumbnailTouch}
+                >
+                  <View>
+                    <Image
+                      resizeMethod="resize"
+                      style={styles.thumbnail}
+                      source={{ uri: item.thumbnail }}
+                    />
+                    <Text style={styles.label} fontWeight="bold">
+                      {item.title}
+                    </Text>
+                  </View>
+                </TouchableHighlight>
+              )}
+            />
+          </View>
+        ))
+        .exhaustive()}
     </SafeArea>
   );
 };

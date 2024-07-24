@@ -7,7 +7,7 @@ export const channel = t.type({
 });
 
 export const channels = t.readonlyArray(channel);
-export type Channels = t.TypeOf<typeof channels>;
+export type Channels = t.OutputOf<typeof channels>;
 
 export const channelContent = t.type({
   nextPageToken: t.string,
