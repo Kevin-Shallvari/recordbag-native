@@ -8,9 +8,7 @@ import {
   Image,
   TouchableHighlight,
 } from "react-native";
-import RecordBagLogo from "@images/record-bag-icon.svg";
 import { colors } from "@colors";
-import { pipe } from "fp-ts/function";
 import { Channels } from "@models/channels";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { Loading } from "@components/Loading";
@@ -31,13 +29,6 @@ export const HomepageScreen: FC<
 
   return (
     <SafeArea>
-      <View style={styles.header}>
-        <RecordBagLogo fill={colors.lightGray} style={styles.icon} />
-        <Text fontSize="h5" fontWeight="bold" color="lightGray">
-          RecordBag
-        </Text>
-      </View>
-
       {match(shops)
         .with({ status: "initial" }, { status: "loading" }, () => (
           <View style={styles.loadingContainer}>
@@ -60,7 +51,11 @@ export const HomepageScreen: FC<
               renderItem={({ item }) => (
                 <TouchableHighlight
                   onPress={() =>
-                    navigation.navigate("Channel", { channelId: item.id })
+                    navigation.navigate("Channel", {
+                      channelId: item.id,
+                      thumbnail: item.thumbnail,
+                      title: item.title,
+                    })
                   }
                   underlayColor={colors.orange}
                   activeOpacity={0.5}
@@ -92,18 +87,6 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
-  header: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: colors.black,
-    paddingVertical: 16,
-    paddingHorizontal: 8,
-    marginBottom: 16,
-  },
-  icon: {
-    width: fontScale.h2,
-    height: fontScale.h2,
-  },
   thumbnail: {
     aspectRatio: 1,
     borderColor: colors.lightGray,
@@ -112,6 +95,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.black,
     marginHorizontal: 16,
     padding: 16,
+    marginTop: 16,
   },
   channelFlatList: {
     marginTop: 16,

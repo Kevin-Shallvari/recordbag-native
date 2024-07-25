@@ -1,13 +1,14 @@
 import * as t from "io-ts";
+import { Schema } from "@effect/schema";
 
-export const channel = t.type({
-  id: t.string,
-  thumbnail: t.string,
-  title: t.string,
+export const ChannelSchema = Schema.Struct({
+  id: Schema.String,
+  thumbnail: Schema.String,
+  title: Schema.String,
 });
 
-export const channels = t.readonlyArray(channel);
-export type Channels = t.OutputOf<typeof channels>;
+export const ChannelsSchema = Schema.Array(ChannelSchema);
+export type Channels = Schema.Schema.Type<typeof ChannelsSchema>;
 
 export const channelContent = t.type({
   nextPageToken: t.string,

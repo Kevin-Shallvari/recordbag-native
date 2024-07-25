@@ -14,7 +14,7 @@ export const Preview: FC<Props> = ({ imgSrc, subtitle, title }) => {
     <View style={styles.container}>
       <Image style={styles.image} source={{ uri: imgSrc }} />
       <View style={styles.infoContainer}>
-        <Text fontSize="h5" fontWeight="bold" style={styles.text}>
+        <Text fontSize="h6" fontWeight="bold" style={styles.text}>
           {title}
         </Text>
       </View>
@@ -37,7 +37,7 @@ const styles = StyleSheet.create({
   },
   infoContainer: {
     flexWrap: "wrap",
-    paddingHorizontal: 8,
+    paddingHorizontal: 16,
     flex: 1,
     flexDirection: "row",
   },

@@ -9,12 +9,12 @@ import {
 import { match } from "ts-pattern";
 import { colors, Colors } from "@colors";
 import { fontScale } from "@typography";
+import { TextProps } from "react-native";
 
 type FontSize = keyof typeof fontScale;
 type FontWeight = "normal" | "bold" | "semi-bold" | "light";
-type Props = {
+type Props = TextProps & {
   fontSize?: FontSize;
-  style?: StyleProp<TextStyle>;
   fontWeight?: FontWeight;
   color?: Colors;
 };
@@ -25,15 +25,21 @@ export const Text: FC<PropsWithChildren<Props>> = ({
   fontSize = "p",
   color = "black",
   fontWeight = "normal",
+  ...props
 }) => {
   return (
-    <DefaultText style={[styles({ fontSize, fontWeight, color }).text, style]}>
+    <DefaultText
+      {...props}
+      style={[styles({ fontSize, fontWeight, color }).text, style]}
+    >
       {children}
     </DefaultText>
   );
 };
 
-const styles = (args: Omit<Required<Props>, "style">) =>
+const styles = (
+  args: Pick<Required<Props>, "fontSize" | "fontWeight" | "color">
+) =>
   StyleSheet.create({
     text: {
       fontFamily: match(args.fontWeight)

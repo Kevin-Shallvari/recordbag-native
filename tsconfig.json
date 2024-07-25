@@ -8,7 +8,8 @@
       "@components/*": ["./app/components/*"],
       "@images/*": ["./app/assets/images/*"],
       "@config/*": ["./app/config/*"],
-      "@models/*": ["./app/models/*"],
-    }
+      "@models/*": ["./app/models/*"]
+    },
+    "exactOptionalPropertyTypes": true
   }
 }

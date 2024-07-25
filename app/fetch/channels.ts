@@ -1,18 +1,21 @@
 import { collection, getDocs } from "firebase/firestore";
 import { firestoreDb } from "@config/firebase";
-import { pipe, identity, flow } from "fp-ts/function";
 import {
   channelContent,
   Channels,
   channels,
   ChannelsContent,
+  ChannelsSchema,
 } from "@models/channels";
-import * as E from "fp-ts/Either";
+
 import * as TE from "fp-ts/TaskEither";
 import { youtubeEntryPoint } from "./const";
 import { useQuery, UseQueryResult } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { match, P } from "ts-pattern";
+import * as E from "effect/Effect";
+import { identity, Effect, flow, Either, pipe } from "effect";
+import { Schema } from "@effect/schema";
 
 export type Fetch<T> =
   | { status: "initial" }
@@ -20,8 +23,31 @@ export type Fetch<T> =
   | { status: "success"; data: T }
   | { status: "error"; error: Error };
 
-export const fetchAllChannels = async (): Promise<Fetch<Channels>> =>
-  await pipe(
+export const fetchAllChannels = async (): Promise<
+  Effect.Effect<Channels, Error>
+> => {
+  const x = pipe(
+    E.try({
+      try: () =>
+        getDocs(collection(firestoreDb, "shops")).then((res) =>
+          res.docs.map((doc) => doc.data())
+        ),
+      catch: () => new Error("fetch error"),
+    }),
+    E.map(
+      flow(
+        Schema.decodeEither(ChannelsSchema),
+        E.match({
+          onFailure: () => E.fail(new Error("decode error")),
+          onSuccess: E.succeed,
+        })
+      )
+    )
+  );
+
+  return x;
+
+  /* await pipe(
     collection(firestoreDb, "shops"),
     (collection) =>
       TE.tryCatch(
@@ -45,7 +71,8 @@ export const fetchAllChannels = async (): Promise<Fetch<Channels>> =>
         )
       )
     )
-  )();
+  ); */
+};
 
 export const useFetchChannelVideos = (
   channelId: string
@@ -59,7 +86,7 @@ export const useFetchChannelVideos = (
     queryFn: () =>
       fetch(
         `${youtubeEntryPoint}search?part=snippet&channelId=${channelId}&order=date&type=video&maxResults=50&key=${process.env.EXPO_PUBLIC_YOUTUBE_API_KEY}`
-      ).then((res)=>res.json()),
+      ).then((res) => res.json()),
   });
 
   useEffect(() => {
@@ -74,13 +101,10 @@ export const useFetchChannelVideos = (
         status: "error",
         error: e.error,
       }))
-      .with(
-        { status: "success", data: P.nullish },
-        () => ({
-          status: "error",
-          error: new Error("fetch error"),
-        })
-      )
+      .with({ status: "success", data: P.nullish }, () => ({
+        status: "error",
+        error: new Error("fetch error"),
+      }))
       .with({ status: "success" }, ({ data }) =>
         pipe(
           data,
