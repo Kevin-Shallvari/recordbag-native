@@ -1,3 +1,4 @@
+import "./global";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { NavigationContainer, Theme } from "@react-navigation/native";
 import { useFonts } from "expo-font";
@@ -9,7 +10,6 @@ import { colors } from "@colors";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ChannelScreen } from "./app/screens/ChannelScreen";
 import { VideoScreen } from "./app/screens/VideoScreen";
-import { Button } from "react-native";
 import RecordBagLogo from "@images/record-bag-icon.svg";
 import { fontScale } from "@typography";
 import { StyleSheet } from "react-native";
@@ -69,7 +69,7 @@ export default function App() {
                 headerStyle: {
                   backgroundColor: colors.orange,
                 },
-                headerBackVisible: false,
+                headerBackVisible: true,
               })}
             />
             <Stack.Screen name="Video" component={VideoScreen} />

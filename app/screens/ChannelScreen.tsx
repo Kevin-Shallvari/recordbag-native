@@ -3,26 +3,34 @@ import { Text } from "@components/Text";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { SafeArea } from "@components/SafeArea";
 import { TouchableHighlight, View, StyleSheet, Image } from "react-native";
-import { useFetchChannelVideos } from "../fetch/channels";
+import { fetchAllVideosFromChannel } from "../fetch/channels";
 import { match } from "ts-pattern";
 import { FlatList } from "react-native";
 import { Preview } from "@components/Preview";
 import { Loading } from "@components/Loading";
+import * as E from "effect/Effect";
+import { useQuery } from "@tanstack/react-query";
 
 export const ChannelScreen: FC<
   NativeStackScreenProps<RootStackParamList, "Channel">
 > = ({ navigation, route: { params } }) => {
-  const query = useFetchChannelVideos(params.channelId);
+  const query = useQuery({
+    queryKey: ["videos", params.channelId],
+    queryFn: () =>
+      E.runPromise(fetchAllVideosFromChannel(params.channelId)),
+    staleTime: Infinity,
+    
+  });
 
   return (
     <SafeArea>
       {match(query)
-        .with({ status: "initial" }, { status: "loading" }, () => (
+        .with({ status: "pending" }, () => (
           <View style={styles.container}>
             <Loading />
           </View>
         ))
-        .with({ status: "error" }, (e) => <Text>{e.error.message as any}</Text>)
+        .with({ status: "error" }, ({ error }) => <Text>{error.message}</Text>)
         .with({ status: "success" }, ({ data: { items } }) => (
           <FlatList
             data={items}
@@ -56,6 +64,8 @@ export const ChannelScreen: FC<
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
   },
   thumbnail: {
     height: 200,

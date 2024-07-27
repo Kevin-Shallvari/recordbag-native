@@ -14,28 +14,28 @@ import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { Loading } from "@components/Loading";
 import { Fetch, fetchAllChannels } from "../fetch/channels";
 import { match } from "ts-pattern";
+import * as Exit from "effect/Exit";
+import * as E from "effect/Effect";
+import { useQuery } from "@tanstack/react-query";
 
 export const HomepageScreen: FC<
   NativeStackScreenProps<RootStackParamList, "Home">
 > = ({ navigation }) => {
-  const [shops, setShops] = React.useState<Fetch<Channels>>({
-    status: "initial",
+  const data = useQuery({
+    queryKey: ["fetch-all-channels"],
+    queryFn: () => E.runPromise(fetchAllChannels()),
+    
   });
-
-  useEffect(() => {
-    setShops({ status: "loading" });
-    fetchAllChannels().then(setShops);
-  }, []);
 
   return (
     <SafeArea>
-      {match(shops)
-        .with({ status: "initial" }, { status: "loading" }, () => (
+      {match(data)
+        .with({ status: "pending" }, () => (
           <View style={styles.loadingContainer}>
             <Loading />
           </View>
         ))
-        .with({ status: "error" }, () => <Text>Error</Text>)
+        .with({ status: "error" }, (e) => <Text>{e.error.message}</Text>)
         .with({ status: "success" }, ({ data }) => (
           <View style={styles.allChannelsContainer}>
             <Text color="lightGray" fontWeight="bold" fontSize="h2">
