@@ -13,6 +13,7 @@ import { VideoScreen } from "./app/screens/VideoScreen";
 import RecordBagLogo from "@images/record-bag-icon.svg";
 import { fontScale } from "@typography";
 import { StyleSheet } from "react-native";
+import { BackArrow } from "@components/BackArrow";
 
 SplashScreen.preventAutoHideAsync();
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -40,7 +41,7 @@ export default function App() {
     <QueryClientProvider client={queryClient}>
       <SafeAreaProvider>
         <NavigationContainer theme={theme}>
-          <Stack.Navigator screenOptions={{ statusBarColor: colors.orange }}>
+          <Stack.Navigator>
             <Stack.Screen
               name="Home"
               component={HomepageScreen}
@@ -51,10 +52,11 @@ export default function App() {
                 },
                 headerTitleStyle: {
                   color: colors.lightGray,
-                  fontSize: fontScale.h3,
+                  fontSize: fontScale.h4,
                   fontWeight: "bold",
                   fontFamily: "SpaceGrotesk-Bold",
                 },
+                statusBarColor: colors.black,
                 headerLeft: () => (
                   <RecordBagLogo fill={colors.lightGray} style={styles.icon} />
                 ),
@@ -63,16 +65,28 @@ export default function App() {
             <Stack.Screen
               name="Channel"
               component={ChannelScreen}
-              options={({ route: { params } }) => ({
+              options={({ route: { params }, navigation }) => ({
                 title: params.title,
                 headerTitle: params.title + " Shop",
                 headerStyle: {
                   backgroundColor: colors.orange,
                 },
-                headerBackVisible: true,
+                statusBarColor: colors.orange,
+                headerLeft: () => <BackArrow {...navigation} />,
               })}
             />
-            <Stack.Screen name="Video" component={VideoScreen} />
+            <Stack.Screen
+              name="Video"
+              component={VideoScreen}
+              options={({ navigation }) => ({
+                title: "Listen",
+                statusBarColor: colors.green,
+                headerStyle: {
+                  backgroundColor: colors.green,
+                },
+                headerLeft: () => <BackArrow {...navigation} />,
+              })}
+            />
           </Stack.Navigator>
         </NavigationContainer>
       </SafeAreaProvider>
@@ -84,6 +98,7 @@ const styles = StyleSheet.create({
   icon: {
     width: fontScale.h2,
     height: fontScale.h2,
+    marginRight: fontScale.p / 2,
   },
 });
 

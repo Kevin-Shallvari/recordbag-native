@@ -5,16 +5,15 @@ import { Text } from "./Text";
 
 interface Props {
   title: string;
-  subtitle: string;
   imgSrc: string;
 }
 
-export const Preview: FC<Props> = ({ imgSrc, subtitle, title }) => {
+export const Preview: FC<Props> = ({ imgSrc, title }) => {
   return (
     <View style={styles.container}>
       <Image style={styles.image} source={{ uri: imgSrc }} />
       <View style={styles.infoContainer}>
-        <Text fontSize="h6" fontWeight="bold" style={styles.text}>
+        <Text fontSize="h6" fontWeight="bold">
           {title}
         </Text>
       </View>
@@ -29,6 +28,7 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     padding: 8,
     flexDirection: "row",
+    alignItems: "center",
   },
   image: {
     width: 100,
@@ -37,10 +37,8 @@ const styles = StyleSheet.create({
   },
   infoContainer: {
     flexWrap: "wrap",
-    paddingHorizontal: 16,
     flex: 1,
     flexDirection: "row",
-  },
-  text: {
+    justifyContent: "center",
   },
 });

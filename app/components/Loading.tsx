@@ -33,13 +33,20 @@ export const Loading = () => {
   }, []);
 
   return (
-    <AnimatedIcon
-      style={[styles.icon, { transform: [{ rotate: rotation }] }]}
-    />
+    <View style={styles.loadingContainer}>
+      <AnimatedIcon
+        style={[styles.icon, { transform: [{ rotate: rotation }] }]}
+      />
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
+  loadingContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
   icon: {
     width: 100,
     height: 100,

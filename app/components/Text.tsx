@@ -1,11 +1,5 @@
 import React, { FC, PropsWithChildren } from "react";
-import {
-  Text as DefaultText,
-  StyleSheet,
-  StyleProp,
-  TextStyle,
-  Platform,
-} from "react-native";
+import { Text as DefaultText, StyleSheet } from "react-native";
 import { match } from "ts-pattern";
 import { colors, Colors } from "@colors";
 import { fontScale } from "@typography";
